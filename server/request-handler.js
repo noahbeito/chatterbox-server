@@ -12,7 +12,25 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
+
+var defaultCorsHeaders = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'access-control-allow-headers': 'content-type, accept, authorization',
+  'access-control-max-age': 10 // Seconds.
+};
+
+const dummyData = [
+  {username: 'Jon', text: 'Do my bid'},
+  {username: 'Nancy', text: 'pls help'},
+];
+
 var requestHandler = function(request, response) {
+  console.log(request);
+  // save method, and url properties from request
+  const { method, url } = request;
+
+
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -39,11 +57,13 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/plain';
+  headers['Content-Type'] = 'text/plain'; //application/JSON
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   response.writeHead(statusCode, headers);
+
+// `http://127.0.0.1:3000`
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -52,21 +72,45 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end('Hello, World!');
+  const responseBody = JSON.stringify(dummyData);
+
+  // if request.method === 'POST && request.url === '/classes/messages
+  if ( request.method === 'POST' && request.url === 'classes/messages') {
+    let resObject = {};
+    resObject.username = request._postData.username;
+  }
+
+    // create message object
+
+    // add username to username prop
+    // add message text to text prop
+    // push message object to data storage
+
+  // else if request.method === 'GET' && request.url === ....
+    // do this
+
+
+  response.end(responseBody);
+  // edited from response.end(JSON.stringify(responseBody));
+    // we were double stringifying lol.
+
 };
 
-// These headers will allow Cross-Origin Resource Sharing (CORS).
-// This code allows this server to talk to websites that
-// are on different domains, for instance, your chat client.
+
+
+module.exports = {requestHandler, defaultCorsHeaders};
+// console.log(module);
+// How to view response/request?
+// What needs to be done to add API endpoints...
+// What array needs to be sent?
+
 //
-// Your chat client is running from a url like file://your/chat/client/index.html,
-// which is considered a different domain.
-//
-// Another way to get around this restriction is to serve you chat
-// client from this domain by setting up static file serving.
-var defaultCorsHeaders = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'access-control-allow-headers': 'content-type, accept, authorization',
-  'access-control-max-age': 10 // Seconds.
-};
+
+// request {
+//   url: '/classes/messages',
+//   method: 'POST',
+//   _postData: { username: 'Jono', text: 'Do my bidding!' },
+//   setEncoding: [Function (anonymous)],
+//   on: [Function: bound ],
+//   addListener: [Function: bound ]
+// }
