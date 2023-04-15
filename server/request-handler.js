@@ -20,13 +20,10 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
-const dummyData = [
-  {username: 'Jon', text: 'Do my bid'},
-  {username: 'Nancy', text: 'pls help'},
-];
+const dataStorage = [];
 
 var requestHandler = function(request, response) {
-  console.log(request);
+  //console.log(request);
   // save method, and url properties from request
   const { method, url } = request;
 
@@ -48,7 +45,7 @@ var requestHandler = function(request, response) {
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
   // The outgoing status.
-  var statusCode = 200;
+  // -------var statusCode = 200;
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
@@ -61,7 +58,8 @@ var requestHandler = function(request, response) {
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
+
+  // ----------response.writeHead(statusCode, headers);
 
 // `http://127.0.0.1:3000`
 
@@ -72,25 +70,29 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  const responseBody = JSON.stringify(dummyData);
+  const responseBody = JSON.stringify(dataStorage);
 
   // if request.method === 'POST && request.url === '/classes/messages
-  if ( request.method === 'POST' && request.url === 'classes/messages') {
-    let resObject = {};
-    resObject.username = request._postData.username;
+  if ( request.method === 'POST' && request.url === '/classes/messages') {
+    dataStorage.unshift(request._postData);
+    response.writeHead(201, headers);
+    response.end();
+  } else if (request.method === 'GET' && request.url === '/classes/messages') {
+    response.writeHead(200, headers);
+    console.log('dataStorage: ', dataStorage);
+    response.end(JSON.stringify(dataStorage));
+  } else if (request.url !== '/classes/messages') {
+    response.writeHead(404, headers);
+    response.end();
   }
 
     // create message object
-
-    // add username to username prop
-    // add message text to text prop
-    // push message object to data storage
 
   // else if request.method === 'GET' && request.url === ....
     // do this
 
 
-  response.end(responseBody);
+  // ------- response.end(responseBody);
   // edited from response.end(JSON.stringify(responseBody));
     // we were double stringifying lol.
 
